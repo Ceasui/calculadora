@@ -1,0 +1,125 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Calculadora</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="calculator">
+<div class="display">0</div>
+<div class="buttons">
+<button class="clear">C</button>
+<button class="operator">(</button>
+<button class="operator">)</button>
+<button class="operator">÷</button>
+<button>7</button>
+<button>8</button>
+<button>9</button>
+<button class="operator">×</button>
+<button>4</button>
+<button>5</button>
+<button>6</button>
+<button class="operator">-</button>
+<button>1</button>
+<button>2</button>
+<button>3</button>
+<button class="operator">+</button>
+<button>0</button>
+<button>.</button>
+<button class="clear">←</button>
+<button class="equals">=</button>
+</div>
+</div>
+<script src="Calculadora.js"></script>
+<script>
+  const display = document.querySelector('.display');
+const buttons = document.querySelectorAll('button');
+let currentExpression = '0';
+let shouldResetDisplay = false;
+// Mapeo de teclas a valores de la calculadora
+const keyMappings = {
+'Enter': '=',
+'Escape': 'C',
+'Backspace': '←',
+'/': '÷',
+'*': '×',
+'-': '-',
+'+': '+',
+'.': '.',
+'(': '(',
+')': ')',
+};
+// Función para procesar el input (ya sea de botón o teclado)
+function processInput(value) {
+if (shouldResetDisplay) {
+currentExpression = '0';
+shouldResetDisplay = false;
+}
+if (value === 'C') {
+currentExpression = '0';
+} else if (value === '←') {
+currentExpression = currentExpression.slice(0, -1);
+if (currentExpression === '') currentExpression = '0';
+} else if (value === '=') {
+try {
+let expression = currentExpression
+.replace(/×/g, '*')
+.replace(/÷/g, '/');
+currentExpression = eval(expression).toString();
+shouldResetDisplay = true;
+} catch (error) {
+currentExpression = 'Error';
+shouldResetDisplay = true;
+}
+} else {
+if (currentExpression === '0' && !isOperator(value)) {
+currentExpression = value;
+} else {
+currentExpression += value;
+}
+}
+display.textContent = currentExpression;
+}
+// Event listeners para los botones
+buttons.forEach(button => {
+button.addEventListener('click', () => {
+processInput(button.textContent);
+});
+});
+// Event listener para el teclado
+document.addEventListener('keydown', (event) => {
+// Prevenir el comportamiento por defecto de algunas teclas
+if (event.key === 'Enter' || event.key === '/') {
+event.preventDefault();
+}
+// Verificar si la tecla presionada es un número
+if (/^[0-9]$/.test(event.key)) {
+processInput(event.key);
+animateButton(event.key);
+return;
+}
+// Verificar si la tecla presionada está en nuestro mapeo
+const mappedValue = keyMappings[event.key];
+if (mappedValue) {
+processInput(mappedValue);
+animateButton(mappedValue);
+}
+});
+// Función para animar el botón correspondiente cuando se presiona una tecla
+function animateButton(value) {
+const button = Array.from(buttons).find(btn => btn.textContent === value);
+if (button) {
+button.classList.add('active');
+setTimeout(() => {
+button.classList.remove('active');
+}, 100);
+}
+}
+function isOperator(value) {
+return ['+', '-', '×', '÷', '(', ')', '.'].includes(value);
+}
+</script>
+</body>
+</html>
